@@ -1,0 +1,22 @@
+{
+  "name": "context-plug",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:desktop": "npm run dev --workspace=@context-plug/desktop",
+    "dev:extension": "npm run dev --workspace=@context-plug/extension",
+    "build": "turbo run build",
+    "build:extension": "npm run build --workspace=@context-plug/extension",
+    "build:desktop": "npm run build --workspace=@context-plug/desktop"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "typescript": "^5.3.3"
+  }
+}
+

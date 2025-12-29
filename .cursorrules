@@ -1,0 +1,51 @@
+# Role
+Act as a Senior Systems Architect and Full-Stack Engineer specializing in Local-First software, Electron, and Browser Extensions.
+
+# Project Architecture
+This is a Monorepo using Turborepo/npm workspaces.
+- **Root**: Configuration and package management.
+- **apps/desktop**: Electron app (The "Hub").
+  - Runs a local Express server on port 3124.
+  - Acts as the secure bridge between local files and the browser.
+  - Will eventually act as an MCP (Model Context Protocol) Server.
+- **apps/extension**: Chrome Browser Extension (Manifest V3).
+  - Injects content scripts into `chatgpt.com` and `claude.ai`.
+  - Communicates with `apps/desktop` via `localhost:3124`.
+- **packages/shared**: Shared TypeScript types and utilities.
+
+# Tech Stack Rules
+- **Language**: TypeScript (Strict mode).
+- **Desktop**: Electron (Main/Renderer separation), Express (Local API).
+- **Extension**: React (UI), Vanilla TS (Background/Content Scripts), Manifest V3.
+- **Styling**: Tailwind CSS.
+
+# Coding Guidelines
+
+## General
+- Use functional programming patterns; avoid classes unless necessary for Electron state management.
+- Ensure strict type safety. No `any`. Use `unknown` with type guards if necessary.
+- Async/Await: Always handle errors in async functions using `try/catch`.
+
+## Monorepo
+- When modifying shared code in `packages/shared`, ensure you rebuild or check references in both `desktop` and `extension`.
+- Use descriptive variable names that distinguish between the "Host" (Desktop) and "Client" (Extension).
+
+## Electron (Desktop Hub)
+- **Security**: The Express server is a critical security surface.
+  - Ensure CORS is strictly configured.
+  - Never expose the file system directly; use specific API endpoints.
+- Keep the `Main` process (Node.js) separate from the `Renderer` (UI).
+- The Express server should run inside the `Main` process or a hidden utility process.
+
+## Chrome Extension
+- **Manifest V3 Constraints**:
+  - No remote code execution (Remotely Hosted Code).
+  - Use `chrome.runtime.sendMessage` for internal extension comms.
+  - Use `fetch` for talking to the Desktop Agent (`localhost:3124`).
+- **Content Scripts**:
+  - Isolate DOM manipulation to avoid conflicts with the host page (ChatGPT/Claude).
+  - Use Shadow DOM for injecting UI elements (buttons/overlays) to prevent style leakage.
+
+# Communication Protocol (The Bridge)
+- **Flow**: Extension -> `fetch(http://localhost:3124/...)` -> Desktop Agent -> Local Files/MCP.
+- Always include error handling for when the Desktop Agent is *not* running (connection refused). The Extension should degrade gracefully (e.g., show a "Connect Hub" badge).
