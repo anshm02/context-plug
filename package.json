@@ -15,8 +15,8 @@
     "build:desktop": "npm run build --workspace=@context-plug/desktop"
   },
   "devDependencies": {
+    "electron": "^28.3.3",
     "turbo": "^2.3.3",
     "typescript": "^5.3.3"
   }
 }
-

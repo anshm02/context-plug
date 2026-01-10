@@ -17,6 +17,7 @@ import {
   searchProviderContent,
   fetchAllContent,
 } from "./integrations";
+import searchRouter from "../routes/search";
 
 const PORT = 3124;
 
@@ -76,6 +77,11 @@ export function createServer(): express.Application {
   );
 
   app.use(express.json());
+
+  // =============================================================================
+  // RAG Search API Routes (Hybrid Search Engine)
+  // =============================================================================
+  app.use('/api', searchRouter);
 
   // =============================================================================
   // Health & Status Endpoints
@@ -616,6 +622,10 @@ export function startServer(
     console.log(`  - GET  /content/search?q=query`);
     console.log(`  - GET  /nango/status`);
     console.log(`  - GET  /nango/connections (debug)`);
+    console.log(`  - POST /api/search (RAG Search - Hybrid)`);
+    console.log(`  - GET  /api/search/stats`);
+    console.log(`  - GET  /api/search/health`);
+    console.log(`  - GET  /api/search/sources`);
     onReady?.(PORT);
   });
 

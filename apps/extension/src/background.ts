@@ -176,6 +176,39 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       });
     return true;
   }
+
+  // New RAG Search with Hybrid Search Engine
+  if (message.type === "RAG_SEARCH") {
+    const { query, user_id, sources, limit = 10, min_score = 0.7 } = message as {
+      query: string;
+      user_id: string;
+      sources?: string[];
+      limit?: number;
+      min_score?: number;
+    };
+
+    fetch(`${DESKTOP_HUB_URL}/api/search`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query,
+        user_id,
+        sources,
+        limit,
+        min_score,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        sendResponse({ success: true, data });
+      })
+      .catch((error) => {
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
+  }
 });
 
 // Initial badge update
