@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
   "name": "Context Bridge",
-  "description": "Connect ChatGPT to your local Desktop Hub for enhanced context",
-  "version": "1.0.0",
+  "description": "Connect ChatGPT and Claude to your local Desktop Hub for enhanced context from Linear, Notion, Gmail, Drive, Jira, and Slack",
+  "version": "1.1.0",
   "permissions": ["activeTab", "scripting"],
   "host_permissions": [
     "http://localhost:3124/*",
     "https://chatgpt.com/*",
-    "https://chat.openai.com/*"
+    "https://chat.openai.com/*",
+    "https://claude.ai/*"
   ],
   "background": {
     "service_worker": "background.js",
@@ -15,7 +16,11 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://chatgpt.com/*", "https://chat.openai.com/*"],
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://claude.ai/*"
+      ],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
@@ -33,4 +38,3 @@
     "default_title": "Context Bridge"
   }
 }
-

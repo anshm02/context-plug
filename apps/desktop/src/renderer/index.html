@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://fonts.googleapis.com"
+      content="default-src 'self' http://localhost:3124; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' http://localhost:3124 https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'"
     />
     <title>Context Bridge Hub</title>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@400;500;600;700&display=swap');
       
       * {
         margin: 0;
@@ -19,136 +19,600 @@
 
       :root {
         --bg-primary: #0a0a0b;
-        --bg-secondary: #141416;
-        --accent-green: #00ff87;
-        --accent-green-dim: rgba(0, 255, 135, 0.15);
+        --bg-secondary: #111113;
+        --bg-tertiary: #18181b;
+        --bg-card: linear-gradient(145deg, #141416 0%, #0f0f11 100%);
+        --accent-primary: #00ff87;
+        --accent-primary-dim: rgba(0, 255, 135, 0.12);
+        --accent-secondary: #00d9ff;
+        --accent-warning: #ffb800;
+        --accent-error: #ff4757;
         --text-primary: #ffffff;
-        --text-secondary: #71717a;
-        --border: #27272a;
+        --text-secondary: #a1a1aa;
+        --text-tertiary: #52525b;
+        --border-primary: #27272a;
+        --border-hover: #3f3f46;
+        
+        /* Integration brand colors */
+        --linear-color: #5E6AD2;
+        --notion-color: #ffffff;
+        --google-drive-color: #4285F4;
+        --gmail-color: #EA4335;
+        --jira-color: #0052CC;
+        --slack-color: #E01E5A;
       }
 
       body {
-        font-family: 'Space Grotesk', -apple-system, sans-serif;
+        font-family: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
         background: var(--bg-primary);
         color: var(--text-primary);
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
+        min-height: 100vh;
+        overflow-x: hidden;
         -webkit-app-region: drag;
         user-select: none;
       }
 
-      .container {
-        text-align: center;
-        padding: 2rem;
+      /* Header */
+      .header {
+        padding: 20px 24px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid var(--border-primary);
+        background: linear-gradient(180deg, var(--bg-secondary) 0%, transparent 100%);
       }
 
-      .status-ring {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        background: var(--accent-green-dim);
+      .logo {
+        width: 40px;
+        height: 40px;
+        background: var(--accent-primary-dim);
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 1.5rem;
         position: relative;
-        animation: pulse 2s ease-in-out infinite;
       }
 
-      .status-ring::before {
+      .logo::after {
         content: '';
         position: absolute;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        border: 2px solid var(--accent-green);
-        animation: ring-pulse 2s ease-in-out infinite;
+        inset: -2px;
+        border-radius: 12px;
+        border: 1px solid var(--accent-primary);
+        opacity: 0.3;
       }
 
-      @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
+      .logo svg {
+        width: 22px;
+        height: 22px;
+        color: var(--accent-primary);
       }
 
-      @keyframes ring-pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-      }
-
-      .status-dot {
-        width: 24px;
-        height: 24px;
-        background: var(--accent-green);
-        border-radius: 50%;
-        box-shadow: 0 0 20px var(--accent-green);
-      }
-
-      h1 {
-        font-size: 1.25rem;
+      .header-text h1 {
+        font-size: 1.1rem;
         font-weight: 600;
-        margin-bottom: 0.5rem;
         letter-spacing: -0.02em;
       }
 
-      .subtitle {
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-        margin-bottom: 1.5rem;
+      .header-text p {
+        font-size: 0.75rem;
+        color: var(--text-tertiary);
+        margin-top: 2px;
       }
 
-      .port-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: var(--bg-secondary);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 0.75rem 1rem;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.875rem;
-      }
-
-      .port-badge span {
-        color: var(--accent-green);
-      }
-
-      .endpoints {
-        margin-top: 1.5rem;
+      .status-badge {
+        margin-left: auto;
         display: flex;
-        gap: 0.5rem;
-        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: var(--bg-tertiary);
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--text-secondary);
+        -webkit-app-region: no-drag;
       }
 
-      .endpoint {
-        font-family: 'JetBrains Mono', monospace;
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--accent-primary);
+        border-radius: 50%;
+        box-shadow: 0 0 8px var(--accent-primary);
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(0.95); }
+      }
+
+      /* Main Content */
+      .main {
+        padding: 20px 24px;
+        -webkit-app-region: no-drag;
+      }
+
+      .section-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .section-title::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border-primary);
+      }
+
+      /* Integration Cards */
+      .integrations-grid {
+        display: grid;
+        gap: 10px;
+      }
+
+      .integration-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-primary);
+        border-radius: 12px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+
+      .integration-card:hover {
+        border-color: var(--border-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      .integration-card.connected {
+        border-color: rgba(0, 255, 135, 0.2);
+        background: linear-gradient(145deg, rgba(0, 255, 135, 0.03) 0%, transparent 100%);
+      }
+
+      .integration-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+
+      .integration-icon.linear { background: rgba(94, 106, 210, 0.15); color: var(--linear-color); }
+      .integration-icon.notion { background: rgba(255, 255, 255, 0.1); color: var(--notion-color); }
+      .integration-icon.google-drive { background: rgba(66, 133, 244, 0.15); color: var(--google-drive-color); }
+      .integration-icon.google-mail { background: rgba(234, 67, 53, 0.15); color: var(--gmail-color); }
+      .integration-icon.jira { background: rgba(0, 82, 204, 0.15); color: var(--jira-color); }
+      .integration-icon.slack { background: rgba(224, 30, 90, 0.15); color: var(--slack-color); }
+
+      .integration-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .integration-name {
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 2px;
+      }
+
+      .integration-status {
         font-size: 0.7rem;
+        color: var(--text-tertiary);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .integration-status.connected {
+        color: var(--accent-primary);
+      }
+
+      .integration-action {
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-family: inherit;
+      }
+
+      .integration-action.connect {
+        background: var(--accent-primary);
+        color: #000;
+      }
+
+      .integration-action.connect:hover {
+        background: #00e07a;
+        transform: scale(1.02);
+      }
+
+      .integration-action.disconnect {
+        background: transparent;
         color: var(--text-secondary);
-        background: var(--bg-secondary);
-        padding: 0.25rem 0.5rem;
+        border: 1px solid var(--border-primary);
+      }
+
+      .integration-action.disconnect:hover {
+        border-color: var(--accent-error);
+        color: var(--accent-error);
+      }
+
+      .integration-action:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Footer Stats */
+      .footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 16px 24px;
+        background: linear-gradient(0deg, var(--bg-primary) 60%, transparent);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .footer-stat {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.7rem;
+        color: var(--text-tertiary);
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      .footer-stat strong {
+        color: var(--accent-primary);
+        font-weight: 600;
+      }
+
+      .refresh-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-primary);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        font-size: 0.7rem;
+        font-family: 'JetBrains Mono', monospace;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      .refresh-btn:hover {
+        border-color: var(--accent-secondary);
+        color: var(--accent-secondary);
+      }
+
+      .refresh-btn svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .refresh-btn.loading svg {
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      /* Loading skeleton */
+      .skeleton {
+        background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
         border-radius: 4px;
-        border: 1px solid var(--border);
+      }
+
+      @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
+      /* Toast notifications */
+      .toast-container {
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+      }
+
+      .toast {
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        animation: slideUp 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .toast.success {
+        background: rgba(0, 255, 135, 0.15);
+        border: 1px solid rgba(0, 255, 135, 0.3);
+        color: var(--accent-primary);
+      }
+
+      .toast.error {
+        background: rgba(255, 71, 87, 0.15);
+        border: 1px solid rgba(255, 71, 87, 0.3);
+        color: var(--accent-error);
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="status-ring">
-        <div class="status-dot"></div>
+    <header class="header">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
       </div>
-      <h1>Context Bridge Active</h1>
-      <p class="subtitle">Desktop Hub is running</p>
-      <div class="port-badge">
-        localhost:<span>3124</span>
+      <div class="header-text">
+        <h1>Context Bridge</h1>
+        <p>Desktop Hub</p>
       </div>
-      <div class="endpoints">
-        <span class="endpoint">/health</span>
-        <span class="endpoint">/context</span>
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        localhost:3124
       </div>
-    </div>
+    </header>
+
+    <main class="main">
+      <h2 class="section-title">Integrations</h2>
+      <div class="integrations-grid" id="integrations-grid">
+        <!-- Integrations will be rendered here -->
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-stat">
+        <span>Connected:</span>
+        <strong id="connected-count">0</strong>
+        <span>of 6</span>
+      </div>
+      <button class="refresh-btn" id="refresh-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M23 4v6h-6"/>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+        Refresh
+      </button>
+    </footer>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+      // Integration icons (SVG paths)
+      const ICONS = {
+        linear: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.87 3.87c-.41.41-.41 1.09 0 1.5l14.76 14.76c.41.41 1.09.41 1.5 0 .41-.41.41-1.09 0-1.5L5.37 3.87c-.41-.41-1.09-.41-1.5 0zM2 8.48c0-.55.45-1 1-1h12.04c.55 0 1 .45 1 1s-.45 1-1 1H3c-.55 0-1-.45-1-1zm6.48 8.04c0 .55.45 1 1 1H21.5c.55 0 1-.45 1-1s-.45-1-1-1H9.48c-.55 0-1 .45-1 1z"/></svg>`,
+        notion: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L17.86 1.968c-.42-.326-.98-.7-2.055-.607L3.01 2.295c-.466.046-.56.28-.374.466l1.823 1.447zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.166V6.354c0-.606-.233-.933-.748-.886l-15.177.887c-.56.047-.747.327-.747.933zm14.337.745c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952l1.448.327s0 .84-1.168.84l-3.222.186c-.093-.186 0-.653.327-.746l.84-.233V9.854L7.822 9.62c-.094-.42.14-1.026.793-1.073l3.456-.234 4.764 7.279v-6.44l-1.215-.14c-.093-.514.28-.886.747-.933l3.222-.187zM2.477 1.107l13.215-.933c1.634-.14 2.055-.046 3.082.7l4.249 2.986c.7.513.934.653.934 1.213v16.378c0 1.026-.373 1.634-1.68 1.726l-15.458.933c-.98.047-1.448-.093-1.962-.747l-3.129-4.06c-.56-.746-.793-1.306-.793-1.96V2.667c0-.84.374-1.54 1.542-1.56z"/></svg>`,
+        'google-drive': `<svg viewBox="0 0 24 24" fill="currentColor"><path d="m7.71 3.5l1.63 2.81.06.13L15.37 16H3.03l1.63-2.81 3.05-5.3V3.5M9.72.5H4.64a1 1 0 0 0-.86.5L.5 7.06l4.63 8 2.24-3.89L9.72.5m5.29 0H9.93l4.63 8 4.63-8a1 1 0 0 0-.86-.5h-3.32m8.06 5.62l-4.63 8.01L21.05 19l2.59-4.47a1 1 0 0 0 0-1l-2.58-4.47m-7.22 7.94L13.24 18l-1.61 2.81-.06.13a1 1 0 0 0 .86.5h5.14l2.32-4.01-4.84-3.37m-6.97-1.06l-4.62 8h9.25l4.63-8h-9.26z"/></svg>`,
+        'google-mail': `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 18h-2V9.25L12 13 6 9.25V18H4V6h1.2l6.8 4.25L18.8 6H20m0-2H4c-1.11 0-2 .89-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/></svg>`,
+        jira: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.53 2c0 2.4 1.97 4.35 4.35 4.35h1.78v1.7c0 2.4 1.94 4.34 4.34 4.35V2.84a.84.84 0 0 0-.84-.84h-9.63zM6.77 6.8a4.36 4.36 0 0 0 4.34 4.34h1.8v1.72a4.36 4.36 0 0 0 4.34 4.34V7.63a.84.84 0 0 0-.83-.83H6.77zM2 11.6c0 2.4 1.95 4.34 4.35 4.34h1.78v1.72c0 2.4 1.94 4.34 4.34 4.34v-9.57a.84.84 0 0 0-.84-.84H2z"/></svg>`,
+        slack: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>`
+      };
+
+      const INTEGRATION_META = {
+        linear: { name: 'Linear', description: 'Issues & projects' },
+        notion: { name: 'Notion', description: 'Docs & wikis' },
+        'google-drive': { name: 'Google Drive', description: 'Files & folders' },
+        'google-mail': { name: 'Gmail', description: 'Email messages' },
+        jira: { name: 'Jira', description: 'Issue tracking' },
+        slack: { name: 'Slack', description: 'Team messages' }
+      };
+
+      const BASE_URL = window.hubConfig?.baseUrl || 'http://localhost:3124';
+      let integrations = [];
+      let isLoading = false;
+
+      /**
+       * Show a toast notification
+       */
+      function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+          ${type === 'success' ? '✓' : '✕'}
+          ${message}
+        `;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
+
+      /**
+       * Render the integrations grid
+       */
+      function renderIntegrations() {
+        const grid = document.getElementById('integrations-grid');
+        const providers = ['linear', 'notion', 'google-drive', 'google-mail', 'jira', 'slack'];
+        
+        const connectedCount = integrations.filter(i => i.status === 'connected').length;
+        document.getElementById('connected-count').textContent = connectedCount;
+
+        grid.innerHTML = providers.map(provider => {
+          const integration = integrations.find(i => i.provider === provider);
+          const isConnected = integration?.status === 'connected';
+          const meta = INTEGRATION_META[provider];
+
+          return `
+            <div class="integration-card ${isConnected ? 'connected' : ''}" data-provider="${provider}">
+              <div class="integration-icon ${provider}">
+                ${ICONS[provider]}
+              </div>
+              <div class="integration-info">
+                <div class="integration-name">${meta.name}</div>
+                <div class="integration-status ${isConnected ? 'connected' : ''}">
+                  ${isConnected ? '● Connected' : '○ Not connected'}
+                </div>
+              </div>
+              <button 
+                class="integration-action ${isConnected ? 'disconnect' : 'connect'}"
+                data-provider="${provider}"
+                data-action="${isConnected ? 'disconnect' : 'connect'}"
+              >
+                ${isConnected ? 'Disconnect' : 'Connect'}
+              </button>
+            </div>
+          `;
+        }).join('');
+
+        // Add event listeners
+        grid.querySelectorAll('.integration-action').forEach(btn => {
+          btn.addEventListener('click', handleIntegrationAction);
+        });
+      }
+
+      /**
+       * Fetch integrations from the server
+       */
+      async function fetchIntegrations() {
+        try {
+          isLoading = true;
+          document.getElementById('refresh-btn').classList.add('loading');
+
+          const response = await fetch(`${BASE_URL}/integrations`);
+          const data = await response.json();
+
+          if (data.success) {
+            integrations = data.integrations;
+            renderIntegrations();
+          }
+        } catch (error) {
+          console.error('Failed to fetch integrations:', error);
+          showToast('Failed to fetch integrations', 'error');
+        } finally {
+          isLoading = false;
+          document.getElementById('refresh-btn').classList.remove('loading');
+        }
+      }
+
+      /**
+       * Handle connect/disconnect action
+       */
+      async function handleIntegrationAction(event) {
+        const btn = event.target;
+        const provider = btn.dataset.provider;
+        const action = btn.dataset.action;
+
+        btn.disabled = true;
+
+        try {
+          if (action === 'connect') {
+            // Get OAuth URL
+            const response = await fetch(`${BASE_URL}/integrations/${provider}/connect`);
+            const data = await response.json();
+
+            if (data.success && data.authUrl) {
+              // Open OAuth URL in browser
+              if (window.electronAPI) {
+                await window.electronAPI.openOAuthUrl(data.authUrl);
+                showToast(`Opening ${INTEGRATION_META[provider].name} authorization...`);
+                
+                // Poll for connection status
+                pollConnectionStatus(provider);
+              } else {
+                window.open(data.authUrl, '_blank');
+              }
+            } else {
+              showToast(data.error || 'Failed to get authorization URL', 'error');
+            }
+          } else {
+            // Disconnect
+            const response = await fetch(`${BASE_URL}/integrations/${provider}/disconnect`, {
+              method: 'POST'
+            });
+            const data = await response.json();
+
+            if (data.success) {
+              showToast(`Disconnected from ${INTEGRATION_META[provider].name}`);
+              await fetchIntegrations();
+            } else {
+              showToast(data.error || 'Failed to disconnect', 'error');
+            }
+          }
+        } catch (error) {
+          console.error('Integration action failed:', error);
+          showToast('Action failed', 'error');
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      /**
+       * Poll for connection status after OAuth
+       */
+      async function pollConnectionStatus(provider, attempts = 0) {
+        if (attempts > 30) return; // Stop after 30 attempts (60 seconds)
+
+        try {
+          const response = await fetch(`${BASE_URL}/integrations/${provider}/status`);
+          const data = await response.json();
+
+          if (data.status === 'connected') {
+            showToast(`Connected to ${INTEGRATION_META[provider].name}!`);
+            await fetchIntegrations();
+            return;
+          }
+        } catch (error) {
+          console.error('Status check failed:', error);
+        }
+
+        // Try again in 2 seconds
+        setTimeout(() => pollConnectionStatus(provider, attempts + 1), 2000);
+      }
+
+      // Initialize
+      document.getElementById('refresh-btn').addEventListener('click', fetchIntegrations);
+      
+      // Listen for integration updates from main process
+      if (window.electronAPI?.onIntegrationsUpdated) {
+        window.electronAPI.onIntegrationsUpdated(() => {
+          fetchIntegrations();
+        });
+      }
+
+      // Initial fetch
+      fetchIntegrations();
+    </script>
   </body>
 </html>
-
