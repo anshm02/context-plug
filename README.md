@@ -1,6 +1,8 @@
 # Context Bridge - Universal Context Bridge MVP
 
 A monorepo that connects a Desktop App (Electron + Express) to a Chrome Extension, enabling seamless context sharing between your local file system and web applications like ChatGPT.
+<img width="1183" height="698" alt="Screenshot 2026-01-10 at 10 06 39 AM" src="https://github.com/user-attachments/assets/cbfd315c-1853-4f19-b564-147d71aace64" />
+<img width="518" height="677" alt="Screenshot 2026-01-10 at 10 06 07 AM" src="https://github.com/user-attachments/assets/d8d7eb9e-69ae-4dd5-95a0-08e23f2bf4a1" />
 
 ## Architecture
 
